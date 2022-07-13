@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 namespace MyPackages.StateMachine
@@ -9,8 +10,8 @@ namespace MyPackages.StateMachine
     /// </summary>
     public class StateMachine<TOwner, TMemory> where TMemory : Memory
     {
+        private readonly ReactiveProperty<StateBase> _currentState = new(); // 現在のステート
         private readonly LinkedList<StateBase> _states = new(); // 全てのステート定義
-        private StateBase _currentState; // 現在のステート
 
         /// <summary>
         ///     コンストラクタ
@@ -22,6 +23,8 @@ namespace MyPackages.StateMachine
             Owner = owner;
             Memory = initMemory;
         }
+
+        public IReadOnlyReactiveProperty<StateBase> CurrentState => _currentState;
 
         private TOwner Owner { get; }
         private TMemory Memory { get; }
@@ -59,7 +62,7 @@ namespace MyPackages.StateMachine
         /// <param name="eventId">イベントID</param>
         /// <typeparam name="TFrom">遷移元ステート</typeparam>
         /// <typeparam name="TTo">遷移先ステート</typeparam>
-        public void AddTransition<TFrom, TTo>(int eventId)
+        public StateMachine<TOwner, TMemory> AddTransition<TFrom, TTo>(int eventId)
             where TFrom : StateBase, new()
             where TTo : StateBase, new()
         {
@@ -68,12 +71,13 @@ namespace MyPackages.StateMachine
             if (from.Transitions.ContainsKey(eventId))
             {
                 Debug.LogError("already register eventId!! : " + eventId);
-                return;
+                return this;
             }
 
             // 指定のイベントIDで追加する
             var to = GetOrAdd<TTo>();
             from.Transitions.Add(eventId, to);
+            return this;
         }
 
         /// <summary>
@@ -82,8 +86,8 @@ namespace MyPackages.StateMachine
         /// <typeparam name="T">開始するステート</typeparam>
         public void OnStart<T>() where T : StateBase, new()
         {
-            _currentState = GetOrAdd<T>();
-            _currentState.OnStart();
+            _currentState.Value = GetOrAdd<T>();
+            _currentState.Value.OnStart();
         }
 
         /// <summary>
@@ -91,7 +95,7 @@ namespace MyPackages.StateMachine
         /// </summary>
         public void OnUpdate()
         {
-            _currentState.OnUpdate();
+            _currentState.Value.OnUpdate();
         }
 
         /// <summary>
@@ -102,16 +106,14 @@ namespace MyPackages.StateMachine
         public void DispatchEvent(int eventId)
         {
             // イベントIDからステート取得
-            if (!_currentState.Transitions.TryGetValue(eventId, out var nextState))
-            {
-                Debug.LogError("not found eventId!! : " + eventId);
+            if (!_currentState.Value.Transitions.TryGetValue(eventId, out var nextState))
+                // Debug.LogError("not found eventId!! : " + eventId);
                 return;
-            }
 
             // ステートを切り替える
-            _currentState.OnEnd();
+            _currentState.Value.OnEnd();
             nextState.OnStart();
-            _currentState = nextState;
+            _currentState.Value = nextState;
         }
 
         /// <summary>

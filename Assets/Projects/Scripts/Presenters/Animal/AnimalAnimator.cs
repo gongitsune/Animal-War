@@ -1,5 +1,5 @@
 ﻿using DG.Tweening;
-using Projects.Scripts.Domains.Animal;
+using Projects.Scripts.Domains.Animal.States;
 using UniRx;
 using UnityEngine;
 
@@ -9,18 +9,18 @@ namespace Projects.Scripts.Presenters.Animal
     {
         private static readonly int AnimIdSpeed = Animator.StringToHash("Speed");
         private Animator _animator;
-        private AnimalDomain _domain;
+        private AnimalCore _core;
 
         private void Awake()
         {
             TryGetComponent(out _animator);
-            TryGetComponent(out _domain);
+            TryGetComponent(out _core);
 
-            _domain.IsMove.Subscribe(state =>
+            _core.StateMachine.CurrentState.Subscribe(state =>
             {
                 DOTween
                     .To(() => _animator.GetFloat(AnimIdSpeed), v => _animator.SetFloat(AnimIdSpeed, v),
-                        state ? 1 : 0, 0.5f)
+                        state is StateMoveBeacon ? 1 : 0, 0.5f)
                     .SetEase(Ease.OutQuad)
                     .SetLink(gameObject);
             }).AddTo(this);

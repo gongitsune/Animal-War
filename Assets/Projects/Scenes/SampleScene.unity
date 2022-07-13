@@ -971,7 +971,7 @@ GameObject:
   m_Component:
   - component: {fileID: 329206695}
   m_Layer: 0
-  m_Name: Becon
+  m_Name: Beacon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1937,7 +1937,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbbbbcc7436f41f89ae9029a0a1c3372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 329206695}
 --- !u!195 &725062982
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -4870,7 +4869,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbbbbcc7436f41f89ae9029a0a1c3372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 329206695}
 --- !u!195 &1770597031
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5940,13 +5938,13 @@ NavMeshAgent:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8422892627665840691}
   m_Enabled: 1
-  m_AgentTypeID: 0
+  m_AgentTypeID: -1372625422
   m_Radius: 0.5
   m_Speed: 1.67
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 1.25
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -5954,19 +5952,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &8422892627675191807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8422892627665840691}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbbbbcc7436f41f89ae9029a0a1c3372, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 329206695}
 --- !u!136 &8422892627675191808
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6005,6 +5990,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 211c473fad274480a5e3c7d1bcde33c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8422892627675191811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8422892627665840691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 321edbbd8b6b4846a94fdb116ddc7f85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  beacons:
+  - {fileID: 329206695}
 --- !u!1001 &8816710912327747557
 PrefabInstance:
   m_ObjectHideFlags: 0
