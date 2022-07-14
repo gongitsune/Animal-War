@@ -1,7 +1,16 @@
-﻿namespace Projects.Scripts.Presenters.Animal
+﻿using MyPackages.StateMachine;
+using UnityEngine;
+
+namespace Projects.Scripts.Presenters.Animal
 {
-    public class Animal_IdleState
+    public partial class Animal
     {
-        
+        private class IdleState : MyState
+        {
+            protected internal override void Enter()
+            {
+                Debug.Log("Enter Idle State");
+            }
+        }
     }
 }

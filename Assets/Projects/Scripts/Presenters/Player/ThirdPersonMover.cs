@@ -1,5 +1,5 @@
 ﻿using Cinemachine;
-using Projects.Scripts.Applications.Input;
+using Projects.Scripts.Domain.Input;
 using Projects.Scripts.Domains.Player;
 using Projects.Scripts.Presenters.Common;
 using UniRx;

@@ -1,7 +1,8 @@
-﻿using UniRx;
+﻿using Projects.Scripts.Domains.Player;
+using UniRx;
 using UnityEngine;
 
-namespace Projects.Scripts.Domains.Player
+namespace Projects.Scripts.Presenters.Player
 {
     public class PlayerDomain : MonoBehaviour
     {

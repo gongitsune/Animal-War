@@ -55,11 +55,11 @@ namespace MyPackages.StateMachine
     /// <typeparam name="TEvent">ステートマシンへ送信するイベントの型</typeparam>
     public class ImtStateMachine<TContext, TEvent>
     {
-        private State _currentState;
-        private State _nextState;
         private readonly HashSet<Func<Type, State>> _stateFactorySet;
         private readonly List<State> _stateList;
         private readonly Stack<State> _stateStack;
+        private State _currentState;
+        private State _nextState;
 
 
         // メンバ変数定義
@@ -193,22 +193,21 @@ namespace MyPackages.StateMachine
         /// </summary>
         public abstract class State
         {
-            internal ImtStateMachine<TContext, TEvent> stateMachine;
-
-            // メンバ変数定義
-            internal Dictionary<TEvent, State> transitionTable;
-
-
             /// <summary>
             ///     このステートが所属するステートマシン
             /// </summary>
-            protected ImtStateMachine<TContext, TEvent> StateMachine => stateMachine;
+            internal ImtStateMachine<TContext, TEvent> StateMachine;
+
+            // メンバ変数定義
+            internal Dictionary<TEvent, State> TransitionTable;
+
+            // protected ImtStateMachine<TContext, TEvent> StateMachine => stateMachine;
 
 
             /// <summary>
             ///     このステートが所属するステートマシンが持っているコンテキスト
             /// </summary>
-            protected TContext Context => stateMachine.Context;
+            protected TContext Context => StateMachine.Context;
 
 
             /// <summary>
@@ -363,13 +362,13 @@ namespace MyPackages.StateMachine
 
 
             // 遷移元ステートの遷移テーブルに既に同じイベントIDが存在していたら
-            if (prevState.transitionTable.ContainsKey(eventId))
+            if (prevState.TransitionTable.ContainsKey(eventId))
                 // 上書き登録を許さないので例外を吐く
                 throw new ArgumentException($"ステート'{prevState.GetType().Name}'には、既にイベントID'{eventId}'の遷移が設定済みです");
 
 
             // 遷移テーブルに遷移を設定する
-            prevState.transitionTable[eventId] = nextState;
+            prevState.TransitionTable[eventId] = nextState;
         }
 
 
@@ -554,9 +553,9 @@ namespace MyPackages.StateMachine
 
 
             // 次に遷移するステートを現在のステートから取り出すが見つけられなかったら
-            if (!_currentState.transitionTable.TryGetValue(eventId, out _nextState))
+            if (!_currentState.TransitionTable.TryGetValue(eventId, out _nextState))
                 // 任意ステートからすらも遷移が出来なかったのなら
-                if (!GetOrCreateState<AnyState>().transitionTable.TryGetValue(eventId, out _nextState))
+                if (!GetOrCreateState<AnyState>().TransitionTable.TryGetValue(eventId, out _nextState))
                     // イベントの受付が出来なかった
                     return false;
 
@@ -606,13 +605,10 @@ namespace MyPackages.StateMachine
             if (!Running)
             {
                 // 次に処理するべきステート（つまり起動開始ステート）が未設定なら
-                if (_nextState == null)
-                    // 起動が出来ない例外を吐く
-                    throw new InvalidOperationException("開始ステートが設定されていないため、ステートマシンの起動が出来ません");
 
 
                 // 現在処理中ステートとして設定する
-                _currentState = _nextState;
+                _currentState = _nextState ?? throw new InvalidOperationException("開始ステートが設定されていないため、ステートマシンの起動が出来ません");
                 _nextState = null;
 
 
@@ -766,8 +762,8 @@ namespace MyPackages.StateMachine
 
 
             // 新しいステートに、自身の参照と遷移テーブルのインスタンスの初期化も行って返す
-            newState.stateMachine = this;
-            newState.transitionTable = new Dictionary<TEvent, State>();
+            newState.StateMachine = this;
+            newState.TransitionTable = new Dictionary<TEvent, State>();
             return newState;
         }
 
