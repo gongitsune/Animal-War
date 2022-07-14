@@ -4,7 +4,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Projects.Scripts.Applications.Input
+namespace Projects.Scripts.Domain.Input
 {
     public class PlayerInputUseCase : IDisposable
     {
