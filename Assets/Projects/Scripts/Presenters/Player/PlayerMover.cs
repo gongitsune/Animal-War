@@ -12,7 +12,7 @@ namespace Projects.Scripts.Presenters.Player
     /// </summary>
     [RequireComponent(typeof(GroundedChecker))]
     [RequireComponent(typeof(Rigidbody))]
-    public class ThirdPersonMover : MonoBehaviour
+    public class PlayerMover : MonoBehaviour
     {
         [SerializeField] private CinemachineVirtualCamera playerCamera;
         [SerializeField] private PlayerConfig playerConfig;
@@ -20,7 +20,7 @@ namespace Projects.Scripts.Presenters.Player
 
         private Animator _animator;
         private Vector3 _currentMoveVelocity = Vector3.zero;
-        private PlayerDomain _domain;
+        private PlayerCore _core;
         private GroundedChecker _groundedChecker;
         private PlayerInputUseCase _input;
         private Rigidbody _rigid;
@@ -30,7 +30,7 @@ namespace Projects.Scripts.Presenters.Player
             TryGetComponent(out _rigid);
             TryGetComponent(out _groundedChecker);
             TryGetComponent(out _animator);
-            TryGetComponent(out _domain);
+            TryGetComponent(out _core);
 
             _input = new PlayerInputUseCase
             {
@@ -47,11 +47,11 @@ namespace Projects.Scripts.Presenters.Player
         private void MoveAndRotate(Transform cam, Vector2 value, bool grounded)
         {
             // 入力がない場合は無視
-            var preMoved = _domain.IsMove.Value;
-            _domain.IsMove.Value = value.sqrMagnitude > 0.1f;
-            if (preMoved && !_domain.IsMove.Value && grounded)
+            var preMoved = _core.IsMove.Value;
+            _core.IsMove.Value = value.sqrMagnitude > 0.1f;
+            if (preMoved && !_core.IsMove.Value && grounded)
                 _rigid.velocity = new Vector3(0, _rigid.velocity.y, 0);
-            if (!_domain.IsMove.Value) return;
+            if (!_core.IsMove.Value) return;
 
             // 水平面のベクトルを計算
             var camForward = Vector3.Scale(cam.transform.forward, new Vector3(1, 0, 1))
@@ -81,7 +81,7 @@ namespace Projects.Scripts.Presenters.Player
         {
             if (!grounded) return;
             _rigid.AddForce(new Vector3(0, playerConfig.JumpPower, 0), ForceMode.Impulse);
-            _domain.OnAction.OnNext(PlayerActionState.Jump);
+            _core.OnAction.OnNext(PlayerActionState.Jump);
         }
     }
 }

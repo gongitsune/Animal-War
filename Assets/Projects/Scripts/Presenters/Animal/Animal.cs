@@ -1,54 +1,32 @@
 ﻿using System;
-using MyPackages.StateMachine;
 using Projects.Scripts.Domains;
+using Projects.Scripts.Presenters.Common;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace Projects.Scripts.Presenters.Animal
 {
-    [RequireComponent(typeof(NavMeshAgent))]
-    public partial class Animal : MonoBehaviour
+    [RequireComponent(typeof(NavMeshAgent), typeof(Rigidbody))]
+    public class Animal : AnimalBase
     {
         [SerializeField] private AnimalKind kind;
-        [SerializeField] private Memory memory = new();
 
         private NavMeshAgent _agent;
-
-        private ImtStateMachine<Animal, StateEvent> _stateMachine;
+        private Rigidbody _rigid;
+        public AnimalBase Target { get; set; }
         public AnimalKind Kind => kind;
 
         private void Awake()
         {
             TryGetComponent(out _agent);
-
-            _stateMachine = new ImtStateMachine<Animal, StateEvent>(this);
-            _stateMachine.AddTransition<MoveBeaconState, IdleState>(StateEvent.ArriveBeacon);
-            _stateMachine.AddTransition<IdleState, MoveBeaconState>(StateEvent.EndOccupation);
-            _stateMachine.AddTransition<MoveBeaconState, AttackState>(StateEvent.StartAttack);
-            _stateMachine.AddTransition<IdleState, AttackState>(StateEvent.StartAttack);
-            _stateMachine.SetStartState<MoveBeaconState>();
+            TryGetComponent(out _rigid);
+            
+            _agent.SetDestination(FindObjectOfType<Beacon.Beacon>().transform.position);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            _stateMachine.Update();
-        }
-
-        private enum StateEvent
-        {
-            ArriveBeacon,
-            EndOccupation,
-            StartAttack
-        }
-
-        private abstract class MyState : ImtStateMachine<Animal, StateEvent>.State
-        {
-        }
-
-        [Serializable]
-        private class Memory
-        {
-            public Beacon.Beacon targetBeacon;
+            Debug.Log(_agent.hasPath);
         }
     }
 }
