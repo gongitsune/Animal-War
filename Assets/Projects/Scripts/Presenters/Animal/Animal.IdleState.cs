@@ -1,4 +1,5 @@
-﻿using MyPackages.StateMachine;
+﻿using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 
 namespace Projects.Scripts.Presenters.Animal
@@ -7,9 +8,26 @@ namespace Projects.Scripts.Presenters.Animal
     {
         private class IdleState : MyState
         {
+            private CompositeDisposable _disposable;
+
             protected internal override void Enter()
             {
-                Debug.Log("Enter Idle State");
+                _disposable = new CompositeDisposable();
+
+                Debug.Log("Enter Idle state");
+                Context.memory.targetBeacon.IsOccupied.Subscribe(v =>
+                {
+                    if (v) StateMachine.SendEvent(StateEvent.EndOccupation);
+                }).AddTo(_disposable);
+                Context.memory.targetBeacon.OnTriggerExitAsObservable().Subscribe(col =>
+                {
+                    if (col.gameObject == Context.gameObject) StateMachine.SendEvent(StateEvent.EndOccupation);
+                }).AddTo(_disposable);
+            }
+
+            protected internal override void Exit()
+            {
+                _disposable.Dispose();
             }
         }
     }

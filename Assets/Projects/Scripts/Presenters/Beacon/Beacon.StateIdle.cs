@@ -1,42 +1,59 @@
 ﻿using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Projects.Scripts.Presenters.Beacon
 {
     public partial class Beacon
     {
-        private class IdleState: MyState
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class IdleState : MyState
         {
-            
-        }
-        
-        private class OccupationState: MyState
-        {
-            private float _elapsedTime;
-            // private NavMeshAgent 
-            private readonly CompositeDisposable _disposable = new();
+            private CompositeDisposable _disposable;
 
             protected internal override void Enter()
             {
+                _disposable = new CompositeDisposable();
                 Context.OnTriggerEnterAsObservable().Subscribe(col =>
                 {
-                    
-                });
+                    if (!col.CompareTag("Animal")) return;
+
+                    col.TryGetComponent(out Animal.Animal animal);
+                    Context.memory.enteredAnimal = animal.Kind;
+                    StateMachine.SendEvent(StateEvent.StartOccupation);
+                }).AddTo(_disposable);
+            }
+
+            protected internal override void Exit()
+            {
+                _disposable.Dispose();
+            }
+        }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class OccupationState : MyState
+        {
+            private CompositeDisposable _disposable;
+            private float _elapsedTime;
+
+            protected internal override void Enter()
+            {
+                _disposable = new CompositeDisposable();
+                _elapsedTime = 0;
+
                 Context.OnTriggerExitAsObservable().Subscribe(col =>
                 {
-                    if (col.CompareTag("Animal"))
-                        StateMachine.SendEvent(StateEvent.ExitOccupation);
+                    if (col.CompareTag("Animal")) StateMachine.SendEvent(StateEvent.ExitOccupation);
                 }).AddTo(_disposable);
             }
 
             protected internal override void Update()
             {
                 _elapsedTime += Time.deltaTime;
-                
-                if (!(_elapsedTime > 5)) return;
-                // Context._occupiedAnimal.Value = 
+
+                if (_elapsedTime < Context.memory.occupationSpan) return;
+                Context._isOccupied.Value = true;
+                Context.AnimalId = Context.memory.enteredAnimal;
                 StateMachine.SendEvent(StateEvent.ExitOccupation);
             }
 

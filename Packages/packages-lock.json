@@ -21,6 +21,13 @@
       "dependencies": {},
       "hash": "78db78c7bd5c1c75902dabb1496c85bd2316fca5"
     },
+    "com.github.yoshidan.unibt": {
+      "version": "https://github.com/yoshidan/UniBT.git?path=Assets/UniBT/Scripts",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "aa4b79845f5c3e0996081f922665ccf483e69b2e"
+    },
     "com.neuecc.unirx": {
       "version": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
       "depth": 0,
